@@ -1,8 +1,8 @@
-import HeadingBlock from './blocks/HeadingBlock';
-import ParagraphBlock from './blocks/ParagraphBlock';
-import CodeBlock from './blocks/CodeBlock';
-import VideoBlock from './blocks/VideoBlock';
-import MCQBlock from './blocks/MCQBlock';
+import HeadingBlock from "./blocks/HeadingBlock";
+import ParagraphBlock from "./blocks/ParagraphBlock";
+import CodeBlock from "./blocks/CodeBlock";
+import VideoBlock from "./blocks/VideoBlock";
+import MCQBlock from "./blocks/MCQBlock";
 
 const LessonRenderer = ({ content }) => {
   if (!content || content.length === 0) {
@@ -11,15 +11,17 @@ const LessonRenderer = ({ content }) => {
 
   const renderBlock = (block, index) => {
     switch (block.type) {
-      case 'heading':
+      case "heading":
         return <HeadingBlock key={index} text={block.text} />;
-      case 'paragraph':
+      case "paragraph":
         return <ParagraphBlock key={index} text={block.text} />;
-      case 'code':
-        return <CodeBlock key={index} language={block.language} code={block.text} />;
-      case 'video':
+      case "code":
+        return (
+          <CodeBlock key={index} language={block.language} code={block.text} />
+        );
+      case "video":
         return <VideoBlock key={index} query={block.query} url={block.url} />;
-      case 'mcq':
+      case "mcq":
         return (
           <MCQBlock
             key={index}
@@ -34,11 +36,7 @@ const LessonRenderer = ({ content }) => {
     }
   };
 
-  return (
-    <>
-      {content.map((block, index) => renderBlock(block, index))}
-    </>
-  );
+  return <>{content.map((block, index) => renderBlock(block, index))}</>;
 };
 
 export default LessonRenderer;
