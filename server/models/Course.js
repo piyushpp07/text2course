@@ -25,7 +25,10 @@ const courseSchema = new mongoose.Schema({
   isPublished: {
     type: Boolean,
     default: false
-  }
+  },
+  savedBy: [{
+    type: String // Auth0 sub
+  }]
 }, {
   timestamps: true
 });

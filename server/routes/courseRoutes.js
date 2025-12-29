@@ -5,6 +5,9 @@ import {
   getUserCourses,
   getCourseById,
   deleteCourse,
+  getSavedCourses,
+  saveCourse,
+  unsaveCourse,
 } from "../controllers/courseController.js";
 import { checkJwt, attachUser } from "../middlewares/auth.js";
 
@@ -17,6 +20,9 @@ router.use(attachUser);
 // Course routes
 router.post("/generate", generateCourse);
 router.get("/", getUserCourses);
+router.get("/saved", getSavedCourses); // New route for saved courses
+router.post("/:id/save", saveCourse); // New route to save a course
+router.delete("/:id/save", unsaveCourse); // New route to unsave a course
 router.get("/:id", getCourseById);
 router.delete("/:id", deleteCourse);
 

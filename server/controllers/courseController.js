@@ -230,3 +230,88 @@ export const deleteCourse = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get all courses saved by the authenticated user
+ * GET /api/courses/saved
+ */
+export const getSavedCourses = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    let courses = await Course.find({ savedBy: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    try {
+      courses = await Course.populate(courses, {
+        path: "modules",
+        populate: {
+          path: "lessons",
+          model: "Lesson",
+        },
+      });
+    } catch (populateError) {
+      console.error("--- POPULATE ERROR (Saved Courses) ---");
+      console.error("Failed to populate saved courses.");
+      console.error(populateError);
+    }
+
+    res.status(200).json({
+      success: true,
+      count: courses.length,
+      data: courses,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Save a course for the authenticated user
+ * POST /api/courses/:id/save
+ */
+export const saveCourse = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const courseId = req.params.id;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+
+    if (!course.savedBy.includes(userId)) {
+      course.savedBy.push(userId);
+      await course.save();
+    }
+
+    res.status(200).json({ success: true, message: "Course saved successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Unsave a course for the authenticated user
+ * DELETE /api/courses/:id/save
+ */
+export const unsaveCourse = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const courseId = req.params.id;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+
+    course.savedBy = course.savedBy.filter((id) => id !== userId);
+    await course.save();
+
+    res.status(200).json({ success: true, message: "Course unsaved successfully" });
+  } catch (error) {
+    next(error);
+  }
+};

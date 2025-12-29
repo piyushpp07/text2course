@@ -71,4 +71,23 @@ export const translateToHinglish = async (text) => {
   return response.data;
 };
 
+// Saved Course APIs
+export const getSavedCourses = async (token) => {
+  setAuthToken(token);
+  const response = await api.get('/api/courses/saved');
+  return response.data;
+};
+
+export const saveCourse = async (courseId, token) => {
+  setAuthToken(token);
+  const response = await api.post(`/api/courses/${courseId}/save`);
+  return response.data;
+};
+
+export const unsaveCourse = async (courseId, token) => {
+  setAuthToken(token);
+  const response = await api.delete(`/api/courses/${courseId}/save`);
+  return response.data;
+};
+
 export default api;

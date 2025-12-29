@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   Box,
   Container,
@@ -15,21 +15,26 @@ import {
   AccordionIcon,
   Badge,
   Button,
+  IconButton,
   Spinner,
   Center,
   useToast,
-  useColorModeValue
-} from '@chakra-ui/react';
-import { FiArrowLeft, FiBook } from 'react-icons/fi';
-import { getCourseById } from '../utils/api';
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { FiArrowLeft, FiBook, FiBookmark } from "react-icons/fi";
+import { getCourseById } from "../utils/api";
+import { useCourses } from "../context/CourseContext";
 
 const CourseDetailPage = () => {
   const { courseId } = useParams();
   const { getAccessTokenSilently } = useAuth0();
+  const { savedCourses, saveCourse, unsaveCourse } = useCourses();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const toast = useToast();
+
+  const isSaved = savedCourses.some((c) => c._id === courseId);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -39,8 +44,8 @@ const CourseDetailPage = () => {
         setCourse(response.data);
       } catch (error) {
         toast({
-          title: 'Error loading course',
-          status: 'error',
+          title: "Error loading course",
+          status: "error",
           duration: 3000,
         });
       } finally {
@@ -53,6 +58,14 @@ const CourseDetailPage = () => {
 
   const handleLessonClick = (moduleIndex, lessonIndex) => {
     navigate(`/courses/${courseId}/modules/${moduleIndex}/lessons/${lessonIndex}`);
+  };
+
+  const handleSaveToggle = () => {
+    if (isSaved) {
+      unsaveCourse(courseId);
+    } else {
+      saveCourse(courseId);
+    }
   };
 
   if (loading) {
@@ -74,20 +87,38 @@ const CourseDetailPage = () => {
   return (
     <Container maxW="container.xl" py={8}>
       <VStack spacing={6} align="stretch">
-        <Button
-          leftIcon={<FiArrowLeft />}
-          variant="ghost"
-          onClick={() => navigate('/')}
-          alignSelf="flex-start"
-        >
-          Back to Courses
-        </Button>
+        <HStack justify="space-between">
+          <Button
+            leftIcon={<FiArrowLeft />}
+            variant="ghost"
+            onClick={() => navigate("/")}
+            alignSelf="flex-start"
+          >
+            Back to Courses
+          </Button>
+          <IconButton
+            aria-label={isSaved ? "Unsave course" : "Save course"}
+            icon={<FiBookmark />}
+            variant={isSaved ? "solid" : "outline"}
+            colorScheme="teal"
+            onClick={handleSaveToggle}
+          />
+        </HStack>
 
         <Box>
-          <Heading size="2xl" mb={3} bgGradient="linear(to-r, blue.400, purple.500)" bgClip="text">
+          <Heading
+            size="2xl"
+            mb={3}
+            bgGradient="linear(to-r, blue.400, purple.500)"
+            bgClip="text"
+          >
             {course.title}
           </Heading>
-          <Text color={useColorModeValue('gray.600', 'gray.400')} fontSize="lg" mb={4}>
+          <Text
+            color={useColorModeValue("gray.600", "gray.400")}
+            fontSize="lg"
+            mb={4}
+          >
             {course.description}
           </Text>
           <HStack spacing={2} flexWrap="wrap">
@@ -105,19 +136,24 @@ const CourseDetailPage = () => {
           </Heading>
           <Accordion allowMultiple defaultIndex={[0]}>
             {course.modules?.map((module, moduleIndex) => (
-              <AccordionItem 
-                key={module._id} 
-                bg={useColorModeValue('white', 'gray.800')}
-                border="1px" 
-                borderColor={useColorModeValue('gray.200', 'gray.700')} 
-                borderRadius="lg" 
+              <AccordionItem
+                key={module._id}
+                bg={useColorModeValue("white", "gray.800")}
+                border="1px"
+                borderColor={useColorModeValue("gray.200", "gray.700")}
+                borderRadius="lg"
                 mb={4}
                 overflow="hidden"
               >
-                <AccordionButton _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }} p={4}>
+                <AccordionButton
+                  _hover={{ bg: useColorModeValue("gray.100", "gray.700") }}
+                  p={4}
+                >
                   <Box flex="1" textAlign="left">
                     <HStack>
-                      <Badge colorScheme="purple">Module {moduleIndex + 1}</Badge>
+                      <Badge colorScheme="purple">
+                        Module {moduleIndex + 1}
+                      </Badge>
                       <Heading size="md">{module.title}</Heading>
                     </HStack>
                   </Box>
@@ -131,8 +167,12 @@ const CourseDetailPage = () => {
                         variant="ghost"
                         justifyContent="flex-start"
                         leftIcon={<FiBook />}
-                        onClick={() => handleLessonClick(moduleIndex, lessonIndex)}
-                        _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
+                        onClick={() =>
+                          handleLessonClick(moduleIndex, lessonIndex)
+                        }
+                        _hover={{
+                          bg: useColorModeValue("gray.100", "gray.700"),
+                        }}
                         py={6}
                       >
                         {lessonIndex + 1}. {lesson.title}

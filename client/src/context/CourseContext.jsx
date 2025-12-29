@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { getUserCourses } from "../utils/api";
+import {
+  getUserCourses,
+  getSavedCourses,
+  saveCourse as apiSaveCourse,
+  unsaveCourse as apiUnsaveCourse,
+} from "../utils/api";
 
 const CourseContext = createContext();
 
@@ -17,6 +22,10 @@ export const CourseProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [savedCourses, setSavedCourses] = useState([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [errorSaved, setErrorSaved] = useState(null);
 
   const fetchCourses = async () => {
     if (!isAuthenticated) return;
@@ -35,8 +44,28 @@ export const CourseProvider = ({ children }) => {
     }
   };
 
+  const fetchSavedCourses = async () => {
+    if (!isAuthenticated) return;
+
+    setLoadingSaved(true);
+    setErrorSaved(null);
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await getSavedCourses(token);
+      setSavedCourses(response.data.data || []);
+    } catch (err) {
+      setErrorSaved(err.message);
+      console.error("Error fetching saved courses:", err);
+    } finally {
+      setLoadingSaved(false);
+    }
+  };
+
   useEffect(() => {
-    fetchCourses();
+    if (isAuthenticated) {
+      fetchCourses();
+      fetchSavedCourses();
+    }
   }, [isAuthenticated]);
 
   const addCourse = (newCourse) => {
@@ -47,6 +76,30 @@ export const CourseProvider = ({ children }) => {
     setCourses((prev) => prev.filter((course) => course._id !== courseId));
   };
 
+  const saveCourse = async (courseId) => {
+    try {
+      const token = await getAccessTokenSilently();
+      await apiSaveCourse(token, courseId);
+      // Refetch or update state optimistically
+      fetchSavedCourses();
+    } catch (err) {
+      console.error("Error saving course:", err);
+    }
+  };
+
+  const unsaveCourse = async (courseId) => {
+    try {
+      const token = await getAccessTokenSilently();
+      await apiUnsaveCourse(token, courseId);
+      // Refetch or update state optimistically
+      setSavedCourses((prev) =>
+        prev.filter((course) => course._id !== courseId)
+      );
+    } catch (err) {
+      console.error("Error unsaving course:", err);
+    }
+  };
+
   const value = {
     courses,
     loading,
@@ -54,6 +107,12 @@ export const CourseProvider = ({ children }) => {
     fetchCourses,
     addCourse,
     removeCourse,
+    savedCourses,
+    loadingSaved,
+    errorSaved,
+    fetchSavedCourses,
+    saveCourse,
+    unsaveCourse,
   };
 
   return (
