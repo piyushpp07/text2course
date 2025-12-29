@@ -24,6 +24,7 @@ text-to-learn/
 ## Tech Stack
 
 ### Backend
+
 - Node.js & Express
 - MongoDB with Mongoose
 - Google Gemini AI API
@@ -31,6 +32,7 @@ text-to-learn/
 - Auth0 (JWT authentication)
 
 ### Frontend
+
 - React 18
 - Vite
 - Chakra UI
@@ -51,16 +53,19 @@ text-to-learn/
 ### Backend Setup
 
 1. Navigate to the server directory:
+
 ```bash
 cd server
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file based on `.env.example`:
+
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
@@ -72,6 +77,7 @@ NODE_ENV=development
 ```
 
 4. Start the server:
+
 ```bash
 npm run dev
 ```
@@ -81,16 +87,19 @@ The backend will run on `http://localhost:5000`
 ### Frontend Setup
 
 1. Navigate to the client directory:
+
 ```bash
 cd client
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file based on `.env.example`:
+
 ```env
 VITE_AUTH0_DOMAIN=your-domain.auth0.com
 VITE_AUTH0_CLIENT_ID=your-client-id
@@ -99,6 +108,7 @@ VITE_API_URL=http://localhost:5000
 ```
 
 4. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -116,17 +126,20 @@ The frontend will run on `http://localhost:3000`
 ## API Endpoints
 
 ### Courses
+
 - `POST /api/courses/generate` - Generate a new course from a topic
 - `GET /api/courses` - Get all user courses
 - `GET /api/courses/:id` - Get a specific course
 - `DELETE /api/courses/:id` - Delete a course
 
 ### Lessons
+
 - `POST /api/courses/:courseId/modules/:moduleId/lessons/:lessonId/generate` - Generate lesson content
 - `GET /api/lessons/:id` - Get lesson details
 - `PUT /api/lessons/:id` - Update lesson content
 
 ### Utilities
+
 - `GET /api/youtube/search?query=...` - Search YouTube videos
 - `POST /api/translate/hinglish` - Translate text to Hinglish
 
@@ -152,26 +165,31 @@ The frontend will run on `http://localhost:3000`
 ## Project Features Breakdown
 
 ### 1. Course Generation
+
 - Users input a topic prompt
 - AI generates a structured curriculum with 3-6 modules
 - Each module contains 3-5 lesson titles
 
 ### 2. Lesson Content Generation
+
 - On-demand detailed content generation per lesson
 - Structured content blocks (headings, paragraphs, code, videos, MCQs)
 - Learning objectives for each lesson
 
 ### 3. Interactive Components
+
 - Syntax-highlighted code blocks
 - Embedded YouTube videos
 - Interactive multiple-choice questions with explanations
 
 ### 4. PDF Export
+
 - High-quality PDF generation
 - Formatted for print and offline reading
 - Includes all lesson content
 
 ### 5. User Authentication
+
 - Secure Auth0 integration
 - User-specific course management
 - Protected API routes
@@ -219,5 +237,6 @@ For questions or support, please open an issue on GitHub.
 
 ---
 
-Built with ❤️ for the hackathon challenge
+Built with ❤️
+
 # text2course
