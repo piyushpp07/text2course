@@ -79,7 +79,7 @@ export const CourseProvider = ({ children }) => {
   const saveCourse = async (courseId) => {
     try {
       const token = await getAccessTokenSilently();
-      await apiSaveCourse(token, courseId);
+      await apiSaveCourse(courseId, token);
       // Refetch or update state optimistically
       fetchSavedCourses();
     } catch (err) {
@@ -90,7 +90,7 @@ export const CourseProvider = ({ children }) => {
   const unsaveCourse = async (courseId) => {
     try {
       const token = await getAccessTokenSilently();
-      await apiUnsaveCourse(token, courseId);
+      await apiUnsaveCourse(courseId, token);
       // Refetch or update state optimistically
       setSavedCourses((prev) =>
         prev.filter((course) => course._id !== courseId)
