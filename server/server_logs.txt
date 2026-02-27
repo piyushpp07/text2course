@@ -1,0 +1,24 @@
+
+> text-to-learn-backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+[DB] Attempting to connect to: mongodb+srv://piyush:Radeon%40123@hhld-chat-app.ciiv9qe.mongodb.net/text-to-learn?retryWrites=true&w=majority
+[DB] MongoDB Connected: ac-pcjdoav-shard-00-01.ciiv9qe.mongodb.net
+Server running in development mode on port 5001
+[REQ] 2026-02-27T07:29:18.423Z - GET /health
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+[DB] Attempting to connect to: mongodb+srv://piyush:Radeon%40123@hhld-chat-app.ciiv9qe.mongodb.net/text-to-learn?retryWrites=true&w=majority
+[DB] MongoDB Connected: ac-pcjdoav-shard-00-01.ciiv9qe.mongodb.net
+Server running in development mode on port 5001
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+[DB] Attempting to connect to: mongodb+srv://piyush:Radeon%40123@hhld-chat-app.ciiv9qe.mongodb.net/text-to-learn?retryWrites=true&w=majority
+[DB] MongoDB Connected: ac-pcjdoav-shard-00-00.ciiv9qe.mongodb.net
+Server running in development mode on port 5001

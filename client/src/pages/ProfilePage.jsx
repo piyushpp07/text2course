@@ -15,15 +15,20 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { FiLogOut, FiSun, FiMoon } from "react-icons/fi";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useCourses } from "../context/CourseContext";
 import { Link as RouterLink } from "react-router-dom";
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth0();
+  const user = JSON.parse(localStorage.getItem('user'));
   const { colorMode, toggleColorMode } = useColorMode();
   const { savedCourses, loadingSaved } = useCourses();
   const cardBg = useColorModeValue("white", "gray.800");
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
 
   return (
     <Box maxW="container.lg" mx="auto" mt={10} p={6}>
@@ -36,7 +41,7 @@ const ProfilePage = () => {
           boxShadow="md"
         >
           <VStack spacing={4}>
-            <Avatar size="xl" name={user?.name} src={user?.picture} />
+            <Avatar size="xl" name={user?.name} />
             <Heading as="h2" size="lg">
               {user?.name || "User"}
             </Heading>
@@ -53,9 +58,7 @@ const ProfilePage = () => {
                 leftIcon={<FiLogOut />}
                 colorScheme="red"
                 variant="solid"
-                onClick={() =>
-                  logout({ logoutParams: { returnTo: window.location.origin } })
-                }
+                onClick={handleLogout}
               >
                 Log Out
               </Button>

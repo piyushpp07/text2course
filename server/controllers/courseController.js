@@ -26,6 +26,7 @@ export const generateCourse = async (req, res, next) => {
       title: courseData.title,
       description: courseData.description,
       creator: userId,
+      savedBy: [userId], // Automatically add creator to savedBy
       tags: courseData.tags || [],
     });
 
@@ -110,6 +111,10 @@ export const generateLessonDetail = async (req, res, next) => {
     lesson.content = lessonData.content || [];
     lesson.isEnriched = true;
 
+    // Fix Mongoose Schema.Types.Mixed silent failing update
+    lesson.markModified('content');
+    lesson.markModified('objectives');
+
     await lesson.save();
 
     res.status(200).json({
@@ -128,9 +133,19 @@ export const generateLessonDetail = async (req, res, next) => {
 export const getUserCourses = async (req, res, next) => {
   try {
     const userId = req.userId;
-    let courses = await Course.find({ creator: userId })
+    if (!userId) {
+      console.warn("[GET_COURSES] No userId provided in request");
+      return res.status(401).json({ success: false, message: "Unauthorized: No user identifier" });
+    }
+
+    console.log(`[GET_COURSES] Querying for courses where creator=${userId} OR savedBy contains ${userId}`);
+    let courses = await Course.find({
+      $or: [{ creator: userId }, { savedBy: userId }],
+    })
       .sort({ createdAt: -1 })
       .lean();
+
+    console.log(`[GET_COURSES] Found ${courses.length} courses total for ${userId}`);
 
     // Defensive population to prevent crashes from bad data
     try {
@@ -204,7 +219,7 @@ export const deleteCourse = async (req, res, next) => {
     }
 
     // Check if user is the creator
-    if (course.creator !== req.userId) {
+    if (course.creator.toString() !== req.userId) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to delete this course",
@@ -281,7 +296,8 @@ export const saveCourse = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
 
-    if (!course.savedBy.includes(userId)) {
+    const isSaved = course.savedBy.some((id) => id.toString() === userId);
+    if (!isSaved) {
       course.savedBy.push(userId);
       await course.save();
     }
@@ -307,7 +323,7 @@ export const unsaveCourse = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
 
-    course.savedBy = course.savedBy.filter((id) => id !== userId);
+    course.savedBy = course.savedBy.filter((id) => id.toString() !== userId);
     await course.save();
 
     res.status(200).json({ success: true, message: "Course unsaved successfully" });

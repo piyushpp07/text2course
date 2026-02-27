@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useToast } from "@chakra-ui/react";
 import {
   getUserCourses,
   getSavedCourses,
@@ -18,7 +18,7 @@ export const useCourses = () => {
 };
 
 export const CourseProvider = ({ children }) => {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const toast = useToast();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,31 +28,48 @@ export const CourseProvider = ({ children }) => {
   const [errorSaved, setErrorSaved] = useState(null);
 
   const fetchCourses = async () => {
-    if (!isAuthenticated) return;
+    const localToken = localStorage.getItem('token');
+    const localUser = JSON.parse(localStorage.getItem('user'));
+
+    if (!localToken) {
+      console.log("Not fetching courses: not authenticated");
+      return;
+    }
 
     setLoading(true);
     setError(null);
     try {
-      const token = await getAccessTokenSilently();
-      const response = await getUserCourses(token);
-      setCourses(response.data.data || []);
+      console.log("Fetching courses for local user:", localUser?._id || 'unknown');
+
+      const response = await getUserCourses(localToken);
+      console.log("Response from getUserCourses:", response);
+      const coursesData = response.data || [];
+      setCourses(coursesData);
+      console.log(`Successfully set ${coursesData.length} courses in state`);
     } catch (err) {
       setError(err.message);
       console.error("Error fetching courses:", err);
+      toast({
+        title: "Error fetching courses",
+        description: err.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const fetchSavedCourses = async () => {
-    if (!isAuthenticated) return;
+    const localToken = localStorage.getItem('token');
+    if (!localToken) return;
 
     setLoadingSaved(true);
     setErrorSaved(null);
     try {
-      const token = await getAccessTokenSilently();
-      const response = await getSavedCourses(token);
-      setSavedCourses(response.data.data || []);
+      const response = await getSavedCourses(localToken);
+      setSavedCourses(response.data || []);
     } catch (err) {
       setErrorSaved(err.message);
       console.error("Error fetching saved courses:", err);
@@ -62,11 +79,15 @@ export const CourseProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    const localToken = localStorage.getItem('token');
+    if (localToken) {
       fetchCourses();
       fetchSavedCourses();
+    } else {
+      setCourses([]);
+      setSavedCourses([]);
     }
-  }, [isAuthenticated]);
+  }, []);
 
   const addCourse = (newCourse) => {
     setCourses((prev) => [newCourse, ...prev]);
@@ -78,9 +99,8 @@ export const CourseProvider = ({ children }) => {
 
   const saveCourse = async (courseId) => {
     try {
-      const token = await getAccessTokenSilently();
-      await apiSaveCourse(courseId, token);
-      // Refetch or update state optimistically
+      const localToken = localStorage.getItem('token');
+      await apiSaveCourse(courseId, localToken);
       fetchSavedCourses();
     } catch (err) {
       console.error("Error saving course:", err);
@@ -89,9 +109,8 @@ export const CourseProvider = ({ children }) => {
 
   const unsaveCourse = async (courseId) => {
     try {
-      const token = await getAccessTokenSilently();
-      await apiUnsaveCourse(courseId, token);
-      // Refetch or update state optimistically
+      const localToken = localStorage.getItem('token');
+      await apiUnsaveCourse(courseId, localToken);
       setSavedCourses((prev) =>
         prev.filter((course) => course._id !== courseId)
       );

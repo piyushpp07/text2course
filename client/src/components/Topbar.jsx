@@ -8,11 +8,16 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { FiLogOut, FiMoon, FiSun } from "react-icons/fi";
-import { useAuth0 } from "@auth0/auth0-react";
 
 const Topbar = () => {
-  const { user, logout } = useAuth0();
+  const user = JSON.parse(localStorage.getItem('user'));
   const { colorMode, toggleColorMode } = useColorMode();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
 
   return (
     <Box w="100%" bg="gray.800" px={6} py={3} boxShadow="sm" zIndex={10}>
@@ -37,7 +42,7 @@ const Topbar = () => {
             color="gray.400"
             fontSize="xl"
           />
-          <Avatar size="sm" name={user?.name} src={user?.picture} />
+          <Avatar size="sm" name={user?.name} />
           <Box textAlign="right" mr={2}>
             <Text fontSize="sm" fontWeight="bold" color="gray.100" isTruncated>
               {user?.name}
@@ -51,7 +56,7 @@ const Topbar = () => {
             variant="ghost"
             colorScheme="red"
             size="sm"
-            onClick={() => logout({ returnTo: window.location.origin })}
+            onClick={handleLogout}
           >
             Logout
           </Button>

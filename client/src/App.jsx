@@ -1,8 +1,7 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Flex, Spinner, Center } from "@chakra-ui/react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Box, Flex } from "@chakra-ui/react";
 import { CourseProvider } from "./context/CourseContext";
-import Sidebar from "./components/Sidebar";
+import TopNavBar from "./components/TopNavBar";
 import BottomNavBar from "./components/BottomNavBar";
 import HomePage from "./pages/HomePage";
 import CourseDetailPage from "./pages/CourseDetailPage";
@@ -12,30 +11,17 @@ import ProfilePage from "./pages/ProfilePage";
 import useMediaQuery from "./hooks/useMediaQuery";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth0();
-
-  if (isLoading) {
-    return (
-      <Center h="100vh">
-        <Spinner size="xl" color="blue.500" />
-      </Center>
-    );
-  }
-
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  const localToken = localStorage.getItem('token');
+  return localToken ? children : <Navigate to="/login" />;
 };
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth0();
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const location = useLocation();
 
-  if (isLoading) {
-    return (
-      <Center h="100vh">
-        <Spinner size="xl" color="blue.500" />
-      </Center>
-    );
-  }
+  // Don't show the global sidebar/nav exactly when inside a specific lesson,
+  // since the new LessonPage provides its own HiFi responsive layout.
+  const isLessonPage = location.pathname.match(/\/courses\/[^/]+\/modules\/\d+\/lessons\/\d+/);
 
   return (
     <CourseProvider>
@@ -46,14 +32,16 @@ function App() {
           path="/*"
           element={
             <ProtectedRoute>
-              <Flex minH="100vh">
-                {isMobile ? <BottomNavBar /> : <Sidebar />}
+              <Flex minH="100vh" direction="column">
+                {!isLessonPage && <TopNavBar />}
+                {!isLessonPage && isMobile && <BottomNavBar />}
                 <Box
                   flex="1"
                   maxW="100vw"
+                  w="100%"
                   mx="auto"
-                  pt={4}
-                  pb={isMobile ? "120px" : "20px"}
+                  pt={isLessonPage ? 0 : 8}
+                  pb={!isLessonPage && isMobile ? "120px" : 0}
                 >
                   <Routes>
                     <Route index element={<HomePage />} />

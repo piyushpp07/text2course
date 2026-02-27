@@ -1,21 +1,26 @@
-import { expressjwt as jwt } from "express-jwt";
-import jwksRsa from "jwks-rsa";
+import jwt from 'jsonwebtoken';
 
-export const checkJwt = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `${process.env.AUTH0_ISSUER}.well-known/jwks.json`,
-  }),
-  audience: process.env.AUTH0_AUDIENCE,
-  issuer: process.env.AUTH0_ISSUER,
-  algorithms: ["RS256"],
-});
+export const checkJwt = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+      req.userId = decoded.id;
+      console.log(`[AUTH] JWT verified: ${req.userId}`);
+      return next();
+    } catch (err) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    }
+  }
+  
+  res.status(401).json({ success: false, message: 'No token provided' });
+};
 
 export const attachUser = (req, res, next) => {
-  if (req.auth && req.auth.sub) {
-    req.userId = req.auth.sub;
-  }
+  // Keeping this for compatibility with other routes if needed, 
+  // but userId is already set in checkJwt
   next();
 };

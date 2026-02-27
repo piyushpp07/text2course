@@ -99,13 +99,13 @@ const callOpenAI = async (prompt, options = {}) => {
 export const generateCourseStructure = async (topic) => {
   const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
 
-  const prompt = `You are an expert curriculum designer. Create a comprehensive online course for the topic: "${topic}".
+  const prompt = `You are a world-class curriculum designer and Senior Engineering Lead developing a comprehensive, industrial-grade online course for the topic: "${topic}".
 
-Generate a detailed course structure with the following specifications:
-- A clear, engaging course title and description
-- 3-6 modules that progress from foundational to advanced concepts
-- Each module should have 3-5 lessons
-- Include 3-5 relevant tags for the course
+Generate an extremely detailed, high-level professional course structure spanning from absolute foundational concepts to highly advanced, production-grade applications. It must meet these specifications:
+- A compelling, professional course title and a deep, multi-sentence description that an enterprise training platform would use.
+- Generate between 8 to 15 modules to thoroughly cover the subject at an expert level.
+- Each module MUST contain exactly between 4 and 8 lessons mapping out a logical learning progression.
+- Include 5 highly relevant industry tags for the course.
 
 Return ONLY a valid JSON object (no markdown, no explanation) in this exact format:
 {

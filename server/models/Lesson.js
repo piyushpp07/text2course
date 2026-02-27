@@ -19,6 +19,10 @@ const lessonSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  hinglishText: {
+    type: String,
+    default: ""
+  },
   module: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Module'

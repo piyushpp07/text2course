@@ -11,8 +11,9 @@ const courseSchema = new mongoose.Schema({
     trim: true
   },
   creator: {
-    type: String,
-    required: true  // Auth0 sub
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   modules: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -27,7 +28,8 @@ const courseSchema = new mongoose.Schema({
     default: false
   },
   savedBy: [{
-    type: String // Auth0 sub
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }]
 }, {
   timestamps: true

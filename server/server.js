@@ -22,6 +22,7 @@ import { listAvailableModels } from "./services/aiService.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import lessonRoutes from "./routes/lessonRoutes.js";
 import utilityRoutes from "./routes/utilityRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
 
 // Mongoose instance for global error handling
@@ -51,6 +52,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`[REQ] ${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({
@@ -61,6 +68,7 @@ app.get("/health", (req, res) => {
 });
 
 // API Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/lessons", lessonRoutes);
 app.use("/api", utilityRoutes);

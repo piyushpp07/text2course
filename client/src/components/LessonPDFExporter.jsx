@@ -1,73 +1,32 @@
-import { Button } from "@chakra-ui/react";
+import { Button, useColorModeValue } from "@chakra-ui/react";
 import { FiDownload } from "react-icons/fi";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
-const LessonPDFExporter = ({ lesson, lessonRef }) => {
-  const handleDownload = async () => {
-    if (!lessonRef.current) return;
+const LessonPDFExporter = ({ lessonName }) => {
+  const handleDownload = () => {
+    // A modern and highly reliable trick for PDF generation in SPAs is utilizing the native browser print dialogue!
+    // We update the document title temporarily so the OS PDF saver uses the course name for the actual .pdf file.
+    const originalTitle = document.title;
+    document.title = lessonName ? `${lessonName.replace(/[^a-z0-9]/gi, '_')}` : 'Lesson_Export';
 
-    try {
-      const originalBg = lessonRef.current.style.backgroundColor;
-      const originalColor = lessonRef.current.style.color;
+    // Trigger OS print engine (Vectors & text selectable, unlike html2canvas images!)
+    window.print();
 
-      lessonRef.current.style.backgroundColor = "#ffffff";
-      lessonRef.current.style.color = "#000000";
-      lessonRef.current.style.padding = "40px";
-
-      const canvas = await html2canvas(lessonRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
-
-      // Restore original styles
-      lessonRef.current.style.backgroundColor = originalBg;
-      lessonRef.current.style.color = originalColor;
-      lessonRef.current.style.padding = "32px";
-
-      // Create PDF
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= 297; // A4 height in mm
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= 297;
-      }
-
-      // Save the PDF
-      const fileName = `${lesson.title
-        .replace(/[^a-z0-9]/gi, "_")
-        .toLowerCase()}.pdf`;
-      pdf.save(fileName);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
-    }
+    // Restore title immediately after dialog spawns
+    document.title = originalTitle;
   };
 
   return (
     <Button
       leftIcon={<FiDownload />}
-      colorScheme="green"
+      colorScheme="blue"
+      variant="outline"
+      size="sm"
+      borderRadius="full"
+      px={4}
       onClick={handleDownload}
+      _hover={{ bg: useColorModeValue("blue.50", "blue.900") }}
     >
-      Download as PDF
+      Export PDF
     </Button>
   );
 };

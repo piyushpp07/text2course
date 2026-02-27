@@ -9,10 +9,13 @@ const api = axios.create({
   }
 });
 
+console.log('API Base URL:', API_BASE_URL);
+
 // Add auth token to requests
 export const setAuthToken = (token) => {
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  const finalToken = token || localStorage.getItem('token');
+  if (finalToken) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${finalToken}`;
   } else {
     delete api.defaults.headers.common['Authorization'];
   }
@@ -57,6 +60,20 @@ export const getLessonById = async (lessonId, token) => {
   const response = await api.get(`/api/lessons/${lessonId}`);
   return response.data;
 };
+
+export const updateLesson = async (lessonId, data, token) => {
+  setAuthToken(token);
+  const response = await api.put(`/api/lessons/${lessonId}`, data);
+  return response.data;
+};
+
+export const toggleLessonComplete = async (lessonId, token) => {
+  setAuthToken(token);
+  const response = await api.post(`/api/lessons/${lessonId}/complete`);
+  return response.data;
+};
+
+
 
 // Utility APIs
 export const searchYouTubeVideos = async (query) => {
